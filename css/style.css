@@ -540,7 +540,11 @@ ul, ol { list-style: none; }
 .program { padding: 20px 0; display: grid; grid-template-columns: minmax(0, 1fr) var(--aside); gap: var(--gap); align-items: stretch; }
 .program__col { display: flex; flex-direction: column; gap: 15px; min-width: 0; }
 .program__aside { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-.program__col > :last-child, .program__aside > :last-child { flex-grow: 1; }
+.program__col > :last-child { flex-grow: 1; }
+/* Порядок плашек по макету: стоимость — сразу под госаккредитацией, сноски — внизу колонки */
+.program__aside > .acard--price { order: 1; }
+.program__aside > .icard--spo { order: 2; }
+.program__aside > .icard--notes { order: 3; margin-top: auto; }
 
 .crumbs { display: flex; align-items: center; gap: 8px; min-height: 40px; flex-wrap: wrap; }
 .crumbs__home { width: 40px; height: 40px; padding: 8px; border-radius: 9999px; background: var(--brand-50); color: var(--brand); transition: background-color .15s ease; }
@@ -552,7 +556,7 @@ a.crumbs__link:hover { background: #ebebeb; }
 
 .phero {
   position: relative; display: flex; flex-direction: column; gap: 16px; padding: 20px; min-height: 266px;
-  background: var(--brand-50); border-radius: 16px; overflow: hidden;
+  background: var(--brand-50); border-radius: 16px; box-shadow: var(--shadow-200); overflow: hidden;
 }
 .phero > * { position: relative; z-index: 1; }
 .phero__level { font-size: 16px; line-height: 22px; font-weight: 600; }
@@ -586,7 +590,7 @@ a.crumbs__link:hover { background: #ebebeb; }
 .icard__value { font-size: 16px; line-height: 22px; }
 .icard__value--small { font-size: 14px; line-height: 20px; color: var(--text-2); }
 .kv { display: flex; flex-direction: column; gap: 8px; }
-.kv__row { display: flex; align-items: flex-end; justify-content: space-between; gap: 4px; font-size: 16px; line-height: 22px; }
+.kv__row { display: flex; align-items: center; justify-content: space-between; gap: 4px; font-size: 16px; line-height: 22px; }
 .kv__row span:last-child { flex: none; text-align: right; }
 
 .about {
@@ -598,17 +602,28 @@ a.crumbs__link:hover { background: #ebebeb; }
 .about__text .btn--link { align-self: flex-start; }
 .about__img { flex: none; width: 297px; height: 222px; border-radius: 8px; object-fit: cover; }
 
-.acard { display: flex; align-items: flex-start; gap: 10px; padding: 10px; background: var(--brand-50); border-radius: 16px; transition: background-color .15s ease; }
+/* Плашки справа (макет 16:3276): стрелка — в строке заголовка, строки значений — до правого поля плашки */
+.acard {
+  display: flex; align-items: flex-start; gap: 10px; padding: 10px;
+  background: var(--brand-50); border-radius: 16px; box-shadow: var(--shadow-200);
+  transition: background-color .15s ease;
+}
 a.acard:hover { background: var(--brand-100); }
 .acard__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
-.acard__title { font-size: 16px; line-height: 22px; font-weight: 600; color: var(--text-2); }
+.acard__head { display: flex; align-items: center; gap: 8px; }
+.acard__title { flex: 1; min-width: 0; font-size: 16px; line-height: 22px; font-weight: 600; color: var(--text-2); }
+.acard__arrow { flex: none; display: flex; color: var(--brand-dark); transition: transform .15s ease; }
+a.acard:hover .acard__arrow { transform: translateX(2px); }
 .acard__rows { display: flex; flex-direction: column; gap: 4px; }
 .acard__row { display: flex; justify-content: space-between; gap: 4px; font-size: 14px; line-height: 20px; color: var(--text-2); }
 .acard__row b { font-weight: 600; white-space: nowrap; }
-.acard__arrow { flex: none; align-self: stretch; display: flex; align-items: center; color: var(--brand-dark); }
-.acard--white { background: var(--surface); border-radius: 8px; box-shadow: var(--shadow-200); gap: 12px; }
-.notes { font-size: 16px; line-height: 22px; color: var(--muted); }
-.notes u { text-decoration: underline; text-underline-offset: 2px; }
+
+/* Сноски к * и **: звёздочки висят в своей колонке, текст выровнен по одной линии */
+.notes { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 20px; color: var(--muted); }
+.notes li { display: grid; grid-template-columns: 14px minmax(0, 1fr); column-gap: 4px; }
+.notes__mark { text-align: right; }
+.notes a { text-decoration: underline; text-underline-offset: 2px; transition: color .15s ease; }
+.notes a:hover { color: var(--brand); }
 
 /* ==========================================================================
    Заглушка

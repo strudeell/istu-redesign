@@ -17,18 +17,58 @@
 
   var FORM = S.FORM;
   var PAID = { och: 'Платных (очно)', ochzaoch: 'Платных (очно-заочно)', zaoch: 'Платных (заочно)' };
+  var ORDER_663 = 'https://istu.ru/storage/admission_campaign/2026/1781471714.pdf';
+
+  /* Фото по смыслу направления: в шапке — объект на фоне неба (как здание в макете),
+     в «О программе» — люди за работой по этой специальности. Файлы — assets/img/programs. */
+  var PHOTO = {
+    arch:   { hero: 'arch',   about: 'arch' },
+    design: { hero: 'arch',   about: 'design' },
+    craft:  { hero: 'craft',  about: 'craft' },
+    build:  { hero: 'build',  about: 'build' },
+    water:  { hero: 'water',  about: 'water' },
+    heat:   { hero: 'heat',   about: 'heat' },
+    safety: { hero: 'rescue', about: 'safety' },
+    med:    { hero: 'rescue', about: 'med' },
+    lang:   { hero: 'lang',   about: 'lang' },
+    sport:  { hero: 'sport',  about: 'sport' },
+    it:     { hero: 'it',     about: 'it' },
+    econ:   { hero: 'econ',   about: 'econ' },
+    law:    { hero: 'law',    about: 'law' },
+    drone:  { hero: 'drone',  about: 'drone' },
+    mech:   { hero: 'mech',   about: 'mech' }
+  };
+  function topic(p) {
+    var c = p.code, n = p.name.toLowerCase();
+    if (/^07\./.test(c)) return 'arch';
+    if (/^54\./.test(c)) return 'design';
+    if (/^29\./.test(c)) return 'craft';
+    if (/^13\./.test(c) || /газоснабж|вентиляц/.test(n)) return 'heat';
+    if (/водоснабж|водоотвед/.test(n)) return 'water';
+    if (/^08\.|^2\.1\./.test(c)) return 'build';
+    if (/^20\./.test(c)) return 'safety';
+    if (/^12\./.test(c)) return 'med';
+    if (/^45\./.test(c)) return 'lang';
+    if (/^49\./.test(c)) return 'sport';
+    if (/^09\./.test(c)) return 'it';
+    if (/^38\./.test(c)) return 'econ';
+    if (/^40\./.test(c)) return 'law';
+    if (/^25\./.test(c)) return 'drone';
+    return 'mech';
+  }
+  var photo = PHOTO[topic(p)];
 
   function row(label, value) {
     return '<div class="kv__row"><span>' + label + '</span><span>' + value + '</span></div>';
   }
-  function acard(icon, title, rows, opts) {
-    opts = opts || {};
-    var tag = opts.href ? 'a' : 'div';
-    return '<' + tag + ' class="acard' + (opts.white ? ' acard--white' : '') + '"' + (opts.href ? ' href="' + opts.href + '"' : '') + '>' +
-      '<span class="bubble' + (opts.light ? ' bubble--light' : '') + '">' + I[icon] + '</span>' +
-      '<div class="acard__body">' + (title ? '<p class="acard__title">' + title + '</p>' : '') + rows + '</div>' +
-      (opts.href ? '<span class="acard__arrow">' + I.chevronRightSmall + '</span>' : '') +
-      '</' + tag + '>';
+  /* Плашка справа: стрелка в строке заголовка, строки значений — на всю ширину плашки */
+  function acard(icon, title, rows, mod) {
+    return '<a class="acard' + (mod ? ' ' + mod : '') + '" href="' + S.STUB + '">' +
+      '<span class="bubble">' + I[icon] + '</span>' +
+      '<div class="acard__body">' +
+      '<div class="acard__head"><p class="acard__title">' + title + '</p><span class="acard__arrow">' + I.chevronRightSmall + '</span></div>' +
+      '<div class="acard__rows">' + rows + '</div>' +
+      '</div></a>';
   }
   function arow(label, value) {
     return '<div class="acard__row"><span>' + label + '</span>' + (value !== undefined ? '<b>' + value + '</b>' : '') + '</div>';
@@ -48,7 +88,7 @@
     '<div class="phero__actions">' +
     '<a class="btn btn--primary btn--md" href="' + S.STUB + '">Подать документы</a>' +
     '<a class="btn btn--outline" href="' + S.STUB + '">Задать вопрос</a></div>' +
-    '<img class="phero__img" src="assets/img/building.webp" width="418" height="278" alt="">' +
+    '<img class="phero__img" src="assets/img/programs/hero-' + photo.hero + '.webp" width="418" height="278" alt="">' +
     '</section>';
 
   var tabs = '<nav class="ptabs" aria-label="Разделы программы">' +
@@ -88,29 +128,36 @@
     '<div class="about__text"><h2 class="t-heading" id="about-title">О программе</h2>' +
     '<p>' + esc(T(p.description)) + '</p>' +
     '<a class="btn btn--link" href="' + S.STUB + '">Подробнее о программе ' + I.arrowRightSmall + '</a></div>' +
-    '<img class="about__img" src="assets/img/program-photo.jpg" width="297" height="222" alt="">' +
+    '<img class="about__img" src="assets/img/programs/about-' + photo.about + '.jpg" width="297" height="222" alt="">' +
     '</section>';
 
   /* ---------- Колонка 2 ---------- */
   var noContest = p.noContest || p.pass2025 === null;
   var stats = arow('Проходной балл:', noContest ? 'без конкурса' : S.fmtNum(p.pass2025));
   if (!noContest && p.avg2025 !== null) stats += arow('Средний балл:', S.fmtNum(p.avg2025));
-  var aside = [
-    acard('chart', 'СТАТИСТИКА В 2025 ГОДУ', '<div class="acard__rows">' + stats + '</div>'),
-    acard('users', 'Общежитие', '<div class="acard__rows">' + (p.dorm ? arow('Кампусов', '6') : arow('Не предоставляется')) + '</div>', { href: S.STUB }),
-    acard('school', 'Военный учебный центр', '<div class="acard__rows">' + (p.military ? arow('Обучение', '3 года') : arow('Нет')) + '</div>', { href: S.STUB }),
-    acard('cert', 'Госаккредитация', '<div class="acard__rows">' + arow(p.accreditation ? 'Есть' : 'Нет') + '</div>', { href: S.STUB })
-  ];
-  if (p.spoExams.length) {
-    aside.push('<div class="icard"><span class="bubble">' + I.exam + '</span><div class="icard__body"><p class="icard__title">Вступительные экзамены после СПО</p><div class="kv">' +
-      p.spoExams.map(function (e) { return row(esc(T(e.subject)), e.min); }).join('') + '</div></div></div>');
-  }
   var priceRows = p.forms.map(function (f) {
     return arow(f.price === null ? 'Нет платного набора (' + FORM[f.form].adj + ', ' + T(f.duration) + ')' :
       S.fmtInt(f.price) + ' ₽ в год (' + FORM[f.form].adj + ', ' + T(f.duration) + ')');
   }).join('');
-  aside.push(acard('ruble', 'Стоимость платного обучения**', '<div class="acard__rows">' + priceRows + '</div>', { href: S.STUB }));
-  aside.push(acard('info', '', '<p class="notes">*&nbsp;Количество бюджетных мест на&nbsp;направление<br>**&nbsp;Для&nbsp;граждан РФ, цена указана за&nbsp;первый год&nbsp;обучения с&nbsp;учётом скидки в&nbsp;соответствии с&nbsp;<a href="' + S.STUB + '"><u>приказом №&nbsp;663&nbsp;от&nbsp;29.05.2026</u></a></p>', { white: true, light: true }));
+  /* На десктопе стоимость стоит сразу после госаккредитации (порядок задаёт CSS, см. .program__aside),
+     в разметке она предпоследняя — на это опирается мобильная раскладка */
+  var aside = [
+    acard('chart', 'СТАТИСТИКА В 2025 ГОДУ', stats),
+    acard('users', 'Общежитие', p.dorm ? arow('Кампусов', '6') : arow('Не предоставляется')),
+    acard('school', 'Военный учебный центр', p.military ? arow('Обучение', '3 года') : arow('Нет')),
+    acard('cert', 'Госаккредитация', arow(p.accreditation ? 'Есть' : 'Нет'))
+  ];
+  if (p.spoExams.length) {
+    aside.push('<div class="icard icard--spo"><span class="bubble">' + I.exam + '</span><div class="icard__body"><p class="icard__title">Вступительные экзамены после СПО</p><div class="kv">' +
+      p.spoExams.map(function (e) { return row(esc(T(e.subject)), e.min); }).join('') + '</div></div></div>');
+  }
+  aside.push(acard('ruble', 'Стоимость платного обучения**', priceRows, 'acard--price'));
+  /* Сноски: звёздочки — в отдельной колонке, текст не рвётся после коротких слов */
+  aside.push('<div class="icard icard--notes"><span class="bubble bubble--light">' + I.info + '</span>' +
+    '<ul class="notes">' +
+    '<li><span class="notes__mark">*</span><span>Количество бюджетных мест на&nbsp;направление</span></li>' +
+    '<li><span class="notes__mark">**</span><span>Для&nbsp;граждан РФ, цена указана за&nbsp;первый год обучения с&nbsp;учётом скидки в&nbsp;соответствии с&nbsp;<a href="' + ORDER_663 + '" target="_blank" rel="noopener">приказом №&nbsp;663 от&nbsp;29.05.2026</a></span></li>' +
+    '</ul></div>');
 
   document.getElementById('program').innerHTML =
     '<div class="program__col">' + crumbs + hero + tabs + info + about + '</div>' +
