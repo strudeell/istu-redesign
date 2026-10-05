@@ -266,7 +266,7 @@
   .check, .radio { padding: 4px 0; font-size: 14px; line-height: 20px; }
   .check input, .radio input { margin-top: 2px; }
   .check__box, .radio__dot { margin-top: 2px; }
-  .ege-panel { gap: 8px; padding: 4px 0 8px 28px; }
+  .ege-panel { gap: 8px; padding: 4px 0 8px 28px; } /* для десктопа v1/v2 — телефонную версию можно откатывать отдельно */
   .slider-field { gap: 12px; }
   .slider-field__label { font-size: 14px; line-height: 20px; }
   .score-input { width: 88px; height: 40px; font-size: 16px; }
@@ -284,7 +284,7 @@
     position: sticky; bottom: 0; z-index: 2; margin: -8px -16px 0; padding: 20px 16px calc(16px + env(safe-area-inset-bottom));
     background: linear-gradient(rgba(255, 255, 255, 0), var(--surface) 20px);
   }
-  #apply, #reset-filters { display: none; }
+  #apply, #reset-filters { display: none; } /* #apply — кнопка десктопа v1/v2 */
   #m-show { box-shadow: var(--shadow-400); }
 
   .m-sheet {
@@ -294,6 +294,7 @@
   }
   .m-sheet__grab { top: 8px; }
   .m-sheet__head { touch-action: none; display: flex; flex-direction: column; gap: 12px; margin: -29px -20px 0; padding: 29px 20px 0; }
+  .m-sheet__bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .m-sheet__title { font-size: 16px; line-height: 22.4px; font-weight: 600; }
   .m-sheet__text { font-size: 16px; line-height: 22.4px; }
   .m-sheet__options { display: flex; flex-direction: column; }

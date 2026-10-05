@@ -220,6 +220,7 @@
      кнопка «Показать N программ» закреплена внизу. Фильтры применяются сразу (логика catalog.js).
      ========================================================================== */
   var SORTS = [
+    { key: 'code', dir: 'asc', text: 'По коду направления' },
     { key: 'pass', dir: 'asc', text: 'Ниже проходной балл' },
     { key: 'pass', dir: 'desc', text: 'Выше проходной балл' },
     { key: 'budget', dir: 'desc', text: 'Больше бюджетных мест' },
@@ -253,13 +254,18 @@
     form.querySelector('.filters__buttons').insertAdjacentHTML('beforeend',
       '<button class="btn btn--primary btn--lg btn--block m-only" type="button" id="m-show"></button>');
 
+    /* Только варианты, для которых в каталоге есть переключатель: телефонную версию можно откатывать отдельно от десктопа */
+    var sorts = SORTS.filter(function (s) { return document.querySelector('.toggle[data-sort="' + s.key + '"]'); });
+    var deskSortReset = document.getElementById('reset-sort');
+
     document.body.insertAdjacentHTML('beforeend',
       '<div class="m-sheet m-only" id="m-sort" role="dialog" aria-modal="true" aria-labelledby="m-sort-title" tabindex="-1">' +
       '<div class="m-sheet__head"><span class="m-sheet__grab" aria-hidden="true"></span>' +
-      '<h2 class="m-sheet__title" id="m-sort-title">Сортировка</h2>' +
+      '<div class="m-sheet__bar"><h2 class="m-sheet__title" id="m-sort-title">Сортировка</h2>' +
+      '<button class="m-sheet-reset" type="button" id="m-sort-reset" hidden>Сбросить</button></div>' +
       '<p class="m-sheet__text" id="m-sort-text">Какие направления показывать сначала</p></div>' +
       '<div class="m-sheet__options" role="radiogroup" aria-labelledby="m-sort-text">' +
-      SORTS.map(function (s, i) {
+      sorts.map(function (s, i) {
         return '<label class="radio"><input type="radio" name="m-sort" value="' + i + '"><span class="radio__dot"></span>' +
           '<span class="check__text">' + s.text + '</span></label>';
       }).join('') + '</div>' +
@@ -269,6 +275,7 @@
     var badge = filtersBtn.querySelector('.m-act__count');
     var sortBtn = document.getElementById('m-sort-open');
     var sortSheet = document.getElementById('m-sort');
+    var sortReset = document.getElementById('m-sort-reset');
     var back = head.querySelector('.m-sheet-back');
     var reset = head.querySelector('.m-sheet-reset');
     var show = document.getElementById('m-show');
@@ -314,10 +321,22 @@
     function syncSortRadios() {
       var c = currentSort();
       sortSheet.querySelectorAll('input[name=m-sort]').forEach(function (r) {
-        var s = SORTS[+r.value];
+        var s = sorts[+r.value];
         r.checked = !!c && s.key === c.key && s.dir === c.dir;
       });
+      syncSortReset();
     }
+    /* «Сбросить» — когда есть что сбрасывать: сортировка применена или выбран вариант */
+    function syncSortReset() {
+      sortReset.hidden = !deskSortReset || (!currentSort() && !sortSheet.querySelector('input:checked'));
+    }
+    sortSheet.addEventListener('change', syncSortReset);
+    /* Сброс применяется сразу: все варианты гаснут, список снова идёт по коду направления */
+    sortReset.addEventListener('click', function () {
+      deskSortReset.click();
+      syncSortRadios();
+      sortSheet.focus({ preventScroll: true });
+    });
     sortBtn.addEventListener('click', function () {
       syncSortRadios();
       sortBtn.setAttribute('aria-expanded', 'true');
@@ -327,7 +346,7 @@
     });
     document.getElementById('m-sort-apply').addEventListener('click', function () {
       var r = sortSheet.querySelector('input:checked');
-      if (r) applySort(SORTS[+r.value].key, SORTS[+r.value].dir);
+      if (r) applySort(sorts[+r.value].key, sorts[+r.value].dir);
       closeSheet();
       scrollToList();
     });

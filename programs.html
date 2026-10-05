@@ -6,12 +6,12 @@
   <title>Образовательные программы — ИжГТУ, неофициальный концепт</title>
   <link rel="icon" href="assets/img/logo-header.png">
   <link rel="preload" href="assets/fonts/inter-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/mobile.css">
-  <script src="js/icons.js"></script>
-  <script src="js/common.js"></script>
-  <script src="js/mobile.js"></script>
-  <script src="js/data.js"></script>
+  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/mobile.css?v=3">
+  <script src="js/icons.js?v=3"></script>
+  <script src="js/common.js?v=3"></script>
+  <script src="js/mobile.js?v=3"></script>
+  <script src="js/data.js?v=3"></script>
 </head>
 <body>
   <header id="header"></header>
@@ -44,10 +44,11 @@
         <div class="sortbar">
           <span class="sortbar__label">Сортировать по</span>
           <div class="sortbar__group" role="group" aria-label="Сортировка">
+            <button class="toggle" type="button" data-sort="code" data-title="По коду направления"><span data-icon="sort"></span>Коду<span class="visually-hidden"> направления</span></button>
             <button class="toggle" type="button" data-sort="pass"><span data-icon="sort"></span>Проходному баллу</button>
             <button class="toggle" type="button" data-sort="budget"><span data-icon="sort"></span>Количеству бюджетных мест</button>
             <button class="toggle" type="button" data-sort="price"><span data-icon="sort"></span>Стоимости обучения</button>
-            <button class="tag" type="button" id="reset-all" title="Сбросить поиск, фильтры и сортировку">Сбросить <span data-icon="x"></span></button>
+            <button class="tag" type="button" id="reset-sort" title="Сбросить сортировку: список по коду направления">Сбросить <span data-icon="x"></span></button>
           </div>
         </div>
 
@@ -99,31 +100,29 @@
           </div>
 
           <div class="fsec" role="group" aria-labelledby="f-ege" id="sec-ege">
-            <p class="fsec__title" id="f-ege">Настройка по результатам ЕГЭ</p>
-            <div class="fsec__group">
-              <label class="radio"><input type="radio" name="ege" value="score"><span class="radio__dot"></span><span class="check__text">По баллам ЕГЭ<span class="radio__desc">Покажем, куда хватает баллов</span></span></label>
-              <div class="ege-panel" id="panel-score" hidden>
-                <div class="slider-field">
-                  <div class="slider-field__label">
-                    <label for="score">Сумма баллов</label>
-                    <input class="score-input" type="number" id="score" inputmode="numeric" min="0" max="400" step="1" placeholder="0">
-                  </div>
-                  <div class="range"><span class="range__track"></span><input type="range" id="score-range" min="0" max="310" step="1" value="0" aria-label="Сумма баллов, ползунок"></div>
-                  <p class="slider-field__hint">Сравним с проходным баллом 2025 года</p>
-                </div>
+            <div class="fsec__head">
+              <p class="fsec__title" id="f-ege">Настройка по результатам ЕГЭ</p>
+              <p class="fsec__desc" id="f-ege-desc">Отметьте свои предметы и&nbsp;введите сумму баллов. Русский язык уже учтён</p>
+            </div>
+            <div class="fsec__group" role="group" aria-label="Предметы ЕГЭ" aria-describedby="f-ege-desc">
+              <label class="check"><input type="checkbox" name="subj" value="Математика"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Математика (профильная)</span></label>
+              <label class="check"><input type="checkbox" name="subj" value="Информатика"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Информатика</span></label>
+              <label class="check"><input type="checkbox" name="subj" value="Физика"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Физика</span></label>
+              <label class="check"><input type="checkbox" name="subj" value="Химия"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Химия</span></label>
+              <label class="check"><input type="checkbox" name="subj" value="Биология"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Биология</span></label>
+              <label class="check"><input type="checkbox" name="subj" value="История"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">История</span></label>
+              <label class="check"><input type="checkbox" name="subj" value="Обществознание"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Обществознание</span></label>
+              <label class="check"><input type="checkbox" name="subj" value="Литература"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Литература</span></label>
+              <label class="check"><input type="checkbox" name="subj" value="География"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">География</span></label>
+              <label class="check"><input type="checkbox" name="subj" value="Иностранный язык"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Иностранные языки</span></label>
+            </div>
+            <div class="slider-field ege-score" id="score-field">
+              <div class="slider-field__label">
+                <label for="score">Сумма баллов</label>
+                <input class="score-input" type="number" id="score" inputmode="numeric" min="0" max="400" step="1" placeholder="0" aria-describedby="score-hint">
               </div>
-              <label class="radio"><input type="radio" name="ege" value="subj"><span class="radio__dot"></span><span class="check__text">По предметам ЕГЭ<span class="radio__desc">Русский и математика учтены</span></span></label>
-              <div class="ege-panel" id="panel-subj" hidden>
-                <label class="check"><input type="checkbox" name="subj" value="Информатика"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Информатика</span></label>
-                <label class="check"><input type="checkbox" name="subj" value="Физика"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Физика</span></label>
-                <label class="check"><input type="checkbox" name="subj" value="Химия"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Химия</span></label>
-                <label class="check"><input type="checkbox" name="subj" value="Биология"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Биология</span></label>
-                <label class="check"><input type="checkbox" name="subj" value="История"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">История</span></label>
-                <label class="check"><input type="checkbox" name="subj" value="Обществознание"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Обществознание</span></label>
-                <label class="check"><input type="checkbox" name="subj" value="Литература"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Литература</span></label>
-                <label class="check"><input type="checkbox" name="subj" value="География"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">География</span></label>
-                <label class="check"><input type="checkbox" name="subj" value="Иностранный язык"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Иностранные языки</span></label>
-              </div>
+              <div class="range"><span class="range__track"></span><input type="range" id="score-range" min="0" max="310" step="1" value="0" aria-label="Сумма баллов, ползунок" aria-describedby="score-hint"></div>
+              <p class="slider-field__hint" id="score-hint">Сравним с проходным баллом 2025 года</p>
             </div>
           </div>
 
@@ -143,7 +142,6 @@
           </div>
 
           <div class="filters__buttons">
-            <button class="btn btn--primary btn--md btn--block" type="button" id="apply">Применить фильтры</button>
             <button class="btn btn--neutral btn--block" type="button" id="reset-filters"><span data-icon="xSquare"></span>Сбросить фильтры</button>
           </div>
         </form>
@@ -153,6 +151,6 @@
 
   <footer id="footer"></footer>
   <script>Site.renderFooter();</script>
-  <script src="js/catalog.js"></script>
+  <script src="js/catalog.js?v=3"></script>
 </body>
 </html>

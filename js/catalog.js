@@ -9,16 +9,17 @@
     eng: 'Инженерные и технические', it: 'IT и математика', hum: 'Социально-гуманитарные направления',
     art: 'Творческие направления', sport: 'Физическая культура и спорт', econ: 'Экономика, управление и право'
   };
-  var BASE_SUBJECTS = ['Математика', 'Русский язык'];
+  var BASE_SUBJECTS = ['Русский язык'];
   var PRICE_MIN = 40, PRICE_MAX = 200;
   var PER_PAGE = 6;
-  var SORT_DEFAULT_DIR = { pass: 'asc', budget: 'desc', price: 'asc' };
+  var SORT_DEFAULT_DIR = { code: 'asc', pass: 'asc', budget: 'desc', price: 'asc' };
 
+  /* sort: '' — сортировка не выбрана, список идёт по коду направления */
   function defaults() {
     return {
       level: 'bachelor', q: '', cat: [], form: [], budget: false, dorm: false,
-      ege: '', score: null, subj: [], pmin: PRICE_MIN, pmax: PRICE_MAX,
-      sort: 'pass', dir: 'asc', view: 'grid', page: 1
+      score: null, subj: [], pmin: PRICE_MIN, pmax: PRICE_MAX,
+      sort: '', dir: 'asc', view: 'grid', page: 1
     };
   }
 
@@ -33,7 +34,6 @@
     st.form = list('form').filter(function (f) { return S.FORM[f]; });
     st.budget = p.get('budget') === '1';
     st.dorm = p.get('dorm') === '1';
-    if (p.get('ege') === 'score' || p.get('ege') === 'subj') st.ege = p.get('ege');
     var sc = parseInt(p.get('score'), 10);
     st.score = isNaN(sc) ? null : Math.max(0, Math.min(400, sc));
     st.subj = list('subj');
@@ -42,9 +42,10 @@
       st.pmin = Math.max(PRICE_MIN, Math.min(pr[0], PRICE_MAX));
       st.pmax = Math.max(st.pmin, Math.min(pr[1], PRICE_MAX));
     }
-    if (SORT_DEFAULT_DIR[p.get('sort')]) st.sort = p.get('sort');
-    if (p.get('dir') === 'asc' || p.get('dir') === 'desc') st.dir = p.get('dir');
-    else st.dir = SORT_DEFAULT_DIR[st.sort];
+    if (SORT_DEFAULT_DIR[p.get('sort')]) {
+      st.sort = p.get('sort');
+      st.dir = p.get('dir') === 'asc' || p.get('dir') === 'desc' ? p.get('dir') : SORT_DEFAULT_DIR[st.sort];
+    }
     if (p.get('view') === 'list') st.view = 'list';
     var pg = parseInt(p.get('page'), 10);
     if (pg > 0) st.page = pg;
@@ -59,11 +60,10 @@
     if (st.form.length) p.set('form', st.form.join(','));
     if (st.budget) p.set('budget', '1');
     if (st.dorm) p.set('dorm', '1');
-    if (st.ege) p.set('ege', st.ege);
     if (st.score !== null) p.set('score', st.score);
     if (st.subj.length) p.set('subj', st.subj.join(','));
     if (st.pmin !== PRICE_MIN || st.pmax !== PRICE_MAX) p.set('price', st.pmin + '-' + st.pmax);
-    if (st.sort !== d.sort || st.dir !== SORT_DEFAULT_DIR[st.sort]) { p.set('sort', st.sort); p.set('dir', st.dir); }
+    if (st.sort) { p.set('sort', st.sort); p.set('dir', st.dir); }
     if (st.view !== d.view) p.set('view', st.view);
     if (st.page > 1) p.set('page', st.page);
     var s = p.toString();
@@ -74,6 +74,9 @@
   function norm(s) { return s.toLowerCase().replace(/ё/g, 'е'); }
 
   function egeApplies(st) { return !!EGE_LEVELS[st.level]; }
+
+  /* Сумму баллов сравниваем, только когда отмечены предметы: в списке остаются программы, куда с ними можно поступить */
+  function scoreOn(st) { return egeApplies(st) && st.subj.length > 0 && st.score !== null && st.score > 0; }
 
   function hasSubjects(p, subj) {
     var has = {};
@@ -125,32 +128,44 @@
     return pickForm(p, st).price;
   }
 
+  function byCode(a, b) { return a.code.localeCompare(b.code, 'ru', { numeric: true }); }
+
+  /* Без выбранной сортировки и при равных значениях — по порядку кода направления, затем по названию */
   function compare(a, b, st) {
-    var va = sortValue(a, st), vb = sortValue(b, st);
-    if (va === null && vb === null) return a.name.localeCompare(b.name, 'ru');
-    if (va === null) return 1;
-    if (vb === null) return -1;
-    if (va !== vb) return st.dir === 'asc' ? va - vb : vb - va;
-    return a.name.localeCompare(b.name, 'ru');
+    var r = 0;
+    if (st.sort && st.sort !== 'code') {
+      var va = sortValue(a, st), vb = sortValue(b, st);
+      if (va === null || vb === null) r = (va === null) - (vb === null);
+      else r = st.dir === 'asc' ? va - vb : vb - va;
+    }
+    if (!r) r = st.sort === 'code' && st.dir === 'desc' ? byCode(b, a) : byCode(a, b);
+    return r || a.name.localeCompare(b.name, 'ru');
+  }
+
+  /* С суммой баллов сначала программы, куда абитуриент проходит, затем — где баллов не хватает, в конце — без бюджетных мест */
+  var TIER = { ok: 0, edge: 0, miss: 1, none: 2 };
+  function tier(p, st) {
+    var s = status(p, st);
+    return s ? TIER[s.kind] : 0;
   }
 
   /* Профили одного направления идут подряд; группы упорядочены по лучшему профилю */
   function arrange(list, st) {
     var groups = {}, order = [];
     list.forEach(function (p) {
-      if (!groups[p.code]) { groups[p.code] = []; order.push(p.code); }
-      groups[p.code].push(p);
+      var t = tier(p, st), key = t + ' ' + p.code;
+      if (!groups[key]) { groups[key] = { tier: t, items: [] }; order.push(key); }
+      groups[key].items.push(p);
     });
-    order.forEach(function (c) { groups[c].sort(function (a, b) { return compare(a, b, st); }); });
+    order.forEach(function (k) { groups[k].items.sort(function (a, b) { return compare(a, b, st); }); });
     order.sort(function (x, y) {
-      var r = compare(groups[x][0], groups[y][0], st);
-      return r || x.localeCompare(y);
+      return groups[x].tier - groups[y].tier || compare(groups[x].items[0], groups[y].items[0], st);
     });
-    return order.reduce(function (acc, c) { return acc.concat(groups[c]); }, []);
+    return order.reduce(function (acc, k) { return acc.concat(groups[k].items); }, []);
   }
 
   function status(p, st) {
-    if (!egeApplies(st) || st.score === null || st.score <= 0) return null;
+    if (!scoreOn(st)) return null;
     if (!(p.budget > 0)) return { kind: 'none', icon: 'xCircle', text: 'Бюджетных мест нет' };
     if (p.pass2025 === null) return { kind: 'ok', icon: 'checkCircle', text: 'Приём без конкурса' };
     var d = st.score - p.pass2025;
@@ -304,10 +319,11 @@
     chips: document.getElementById('chips'),
     form: document.getElementById('filters'),
     secEge: document.getElementById('sec-ege'),
-    panelScore: document.getElementById('panel-score'),
-    panelSubj: document.getElementById('panel-subj'),
+    scoreField: document.getElementById('score-field'),
+    scoreHint: document.getElementById('score-hint'),
     score: document.getElementById('score'),
     scoreRange: document.getElementById('score-range'),
+    resetSort: document.getElementById('reset-sort'),
     pmin: document.getElementById('price-min'),
     pmax: document.getElementById('price-max'),
     priceOut: document.getElementById('price-out'),
@@ -335,13 +351,15 @@
     els.form.querySelectorAll('input[name=form]').forEach(function (i) { i.checked = st.form.indexOf(i.value) >= 0; });
     els.form.querySelector('input[name=budget]').checked = st.budget;
     els.form.querySelector('input[name=dorm]').checked = st.dorm;
-    els.form.querySelectorAll('input[name=ege]').forEach(function (i) { i.checked = i.value === st.ege; });
-    els.panelScore.hidden = st.ege !== 'score';
-    els.panelSubj.hidden = st.ege !== 'subj';
     els.secEge.hidden = !egeApplies(st);
-    if (document.activeElement !== els.score) els.score.value = st.score === null ? '' : st.score;
-    els.scoreRange.value = st.score === null ? 0 : Math.min(st.score, 310);
     els.form.querySelectorAll('input[name=subj]').forEach(function (i) { i.checked = st.subj.indexOf(i.value) >= 0; });
+    /* Сумма баллов вводится после предметов */
+    var noSubj = !st.subj.length;
+    if (noSubj || document.activeElement !== els.score) els.score.value = st.score === null ? '' : st.score;
+    els.scoreRange.value = st.score === null ? 0 : Math.min(st.score, 310);
+    els.score.disabled = els.scoreRange.disabled = noSubj;
+    els.scoreField.classList.toggle('is-disabled', noSubj);
+    els.scoreHint.textContent = noSubj ? 'Сначала отметьте предметы' : 'Сравним с проходным баллом 2025 года';
     els.pmin.value = st.pmin;
     els.pmax.value = st.pmax;
     els.priceOut.textContent = st.pmin + '–' + st.pmax;
@@ -350,8 +368,9 @@
       b.classList.toggle('is-on', on);
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
       if (on) b.setAttribute('data-dir', st.dir); else b.removeAttribute('data-dir');
-      b.title = on ? (st.dir === 'asc' ? 'По возрастанию — нажмите, чтобы развернуть' : 'По убыванию — нажмите, чтобы развернуть') : '';
+      b.title = on ? (st.dir === 'asc' ? 'По возрастанию — нажмите, чтобы развернуть' : 'По убыванию — нажмите, чтобы развернуть') : (b.getAttribute('data-title') || '');
     });
+    els.resetSort.disabled = !st.sort;
     document.querySelectorAll('.view-btn').forEach(function (b) {
       var on = b.getAttribute('data-view') === st.view;
       b.classList.toggle('is-active', on);
@@ -368,8 +387,8 @@
     if (st.budget) out.push({ key: 'budget', label: 'Есть бюджетные места' });
     if (st.dorm) out.push({ key: 'dorm', label: 'Есть общежитие' });
     if (egeApplies(st)) {
-      if (st.score !== null && st.score > 0) out.push({ key: 'score', label: 'Сумма баллов: ' + st.score });
       st.subj.forEach(function (s) { out.push({ key: 'subj', value: s, label: 'ЕГЭ: ' + s }); });
+      if (scoreOn(st)) out.push({ key: 'score', label: 'Сумма баллов: ' + st.score });
     }
     if (priceActive(st)) out.push({ key: 'price', label: st.pmin + '–' + st.pmax + ' тыс. ₽ в год' });
     return out;
@@ -406,6 +425,9 @@
       text = 'В бакалавриате ИжГТУ нет IT-направлений. С информатикой можно поступить на инженерные программы — «Строительство» и «Техносферная безопасность». IT-специальности есть в СПО.';
       actions.push('<button class="btn btn--primary btn--md" type="button" data-hint="it-eng">Показать инженерные программы</button>');
       actions.push('<button class="btn btn--outline" type="button" data-level-go="spo">IT-программы СПО</button>');
+    } else if (egeApplies(st) && st.subj.length === 1) {
+      title = 'Отметьте ещё один предмет';
+      text = 'Для поступления нужны результаты трёх ЕГЭ: русский язык и ещё два предмета. Отметьте все свои предметы — покажем программы, куда с ними можно поступить.';
     } else {
       var best = null;
       ['subj', 'cat', 'form', 'price', 'budget', 'dorm', 'q'].forEach(function (key) {
@@ -500,21 +522,13 @@
     });
   });
 
-  document.getElementById('reset-all').addEventListener('click', function () {
-    var d = defaults();
-    d.level = st.level; d.view = st.view;
-    st = d;
-    render();
-  });
+  /* Сбрасывает только сортировку: все переключатели гаснут, список снова идёт по коду направления */
+  els.resetSort.addEventListener('click', function () { update({ sort: '', dir: 'asc' }); });
 
   function resetFilters() {
-    update({ q: '', cat: [], form: [], budget: false, dorm: false, ege: '', score: null, subj: [], pmin: PRICE_MIN, pmax: PRICE_MAX });
+    update({ q: '', cat: [], form: [], budget: false, dorm: false, score: null, subj: [], pmin: PRICE_MIN, pmax: PRICE_MAX });
   }
   document.getElementById('reset-filters').addEventListener('click', resetFilters);
-  document.getElementById('apply').addEventListener('click', function () {
-    render({ scroll: true });
-    if (els.found.animate) els.found.animate([{ color: '#1f90ec' }, { color: '#757575' }], { duration: 900 });
-  });
 
   els.form.addEventListener('change', function (e) {
     var t = e.target, name = t.name;
@@ -523,11 +537,6 @@
     };
     if (name === 'cat' || name === 'form' || name === 'subj') update(obj(name, values(name)));
     else if (name === 'budget' || name === 'dorm') update(obj(name, t.checked));
-    else if (name === 'ege') {
-      update({ ege: t.value });
-      var focusEl = t.value === 'score' ? els.score : els.panelSubj.querySelector('input');
-      if (focusEl && t.value === 'score') focusEl.focus();
-    }
   });
   function obj(k, v) { var o = {}; o[k] = v; return o; }
 
@@ -592,8 +601,14 @@
     els.form.hidden = false; els.filtersOpen.hidden = true;
   });
 
+  /* Высота панели — для CSS: панель выше окна прилипает нижним краем и при прокрутке видна целиком */
+  var filtersWrap = els.form.parentNode;
+  function syncFiltersHeight() { filtersWrap.style.setProperty('--filters-h', filtersWrap.offsetHeight + 'px'); }
+  if (window.ResizeObserver) new ResizeObserver(syncFiltersHeight).observe(filtersWrap);
+
   window.addEventListener('resize', function () { fitCards(els.results); });
   S.onFonts(function () { fitCards(els.results); });
 
   render();
+  syncFiltersHeight();
 })();
