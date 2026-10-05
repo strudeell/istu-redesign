@@ -1,0 +1,29 @@
+/* Страница «Поступающим» (applicants.html) — по мобильному макету Figma.
+   В десктопном макете этой страницы нет, поэтому на компьютере плитки просто встают в четыре колонки. */
+.hub { padding: 20px 0 48px; display: flex; flex-direction: column; gap: 24px; }
+.hub__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.hub__wide { grid-column: span 2; }
+.hub-tile {
+  height: 100%; min-height: 140px; padding: 16px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center;
+  background: var(--brand-50); border-radius: 16px; box-shadow: var(--shadow-200);
+  font-size: 20px; line-height: 24px; color: var(--text);
+  transition: background-color .15s ease, box-shadow .2s ease;
+}
+.hub-tile:hover { background: var(--brand-100); box-shadow: var(--shadow-400); }
+/* Подбор программы — главное действие раздела (вывод теста: первый клик уводил не туда) */
+.hub-tile--accent { background: var(--brand); color: var(--surface); font-weight: 600; }
+.hub-tile--accent:hover { background: var(--brand-dark); }
+.hub-tile__hint { font-size: 16px; line-height: 22px; font-weight: 400; opacity: .9; }
+
+@media (max-width: 767.98px), (max-width: 999.98px) and (pointer: coarse) {
+  .hub { padding: 20px 0 32px; gap: 12px; }
+  .hub .crumbs { margin-bottom: -4px; }
+  .hub__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .hub-tile {
+    min-height: 65px; padding: 8px; gap: 2px; border-radius: 8px;
+    font-size: 16px; line-height: 17.6px;
+  }
+  .hub-tile:hover { box-shadow: var(--shadow-200); }
+  .hub-tile__hint { font-size: 12px; line-height: 16px; }
+}

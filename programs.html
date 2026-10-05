@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Образовательные программы — ИжГТУ, неофициальный концепт</title>
+  <link rel="icon" href="assets/img/logo-header.png">
+  <link rel="preload" href="assets/fonts/inter-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <script src="js/icons.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/mobile.js"></script>
+  <script src="js/data.js"></script>
+</head>
+<body>
+  <header id="header"></header>
+  <script>Site.renderHeader();</script>
+
+  <main class="container">
+    <div class="page-head">
+      <h1 class="t-page">Образовательные программы</h1>
+      <div class="level-tabs" id="level-tabs" aria-label="Уровень образования"></div>
+    </div>
+
+    <div class="catalog">
+      <div class="catalog__main">
+        <div class="toolbar">
+          <label class="search" id="search">
+            <span class="visually-hidden">Поиск по коду или названию программы</span>
+            <input type="search" id="q" placeholder="Введите код или название программы" autocomplete="off" spellcheck="false">
+            <button class="search__clear" type="button" id="q-clear" aria-label="Очистить поиск"><span data-icon="x"></span></button>
+            <span data-icon="search" class="search__icon"></span>
+          </label>
+          <div class="toolbar__right">
+            <p class="found" id="found" aria-live="polite"></p>
+            <div class="view-switch" role="group" aria-label="Вид списка">
+              <button class="view-btn" type="button" data-view="grid" aria-label="Плиткой" title="Плиткой"><span data-icon="grid"></span></button>
+              <button class="view-btn" type="button" data-view="list" aria-label="Списком" title="Списком"><span data-icon="list"></span></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sortbar">
+          <span class="sortbar__label">Сортировать по</span>
+          <div class="sortbar__group" role="group" aria-label="Сортировка">
+            <button class="toggle" type="button" data-sort="pass"><span data-icon="sort"></span>Проходному баллу</button>
+            <button class="toggle" type="button" data-sort="budget"><span data-icon="sort"></span>Количеству бюджетных мест</button>
+            <button class="toggle" type="button" data-sort="price"><span data-icon="sort"></span>Стоимости обучения</button>
+            <button class="tag" type="button" id="reset-all" title="Сбросить поиск, фильтры и сортировку">Сбросить <span data-icon="x"></span></button>
+          </div>
+        </div>
+
+        <div class="chips" id="chips" hidden></div>
+
+        <div class="results" id="results" aria-live="polite"></div>
+        <nav class="pagination" id="pagination" aria-label="Страницы"></nav>
+      </div>
+
+      <aside class="filters-wrap" aria-label="Фильтры">
+        <button class="filters-collapsed" type="button" id="filters-open" hidden>
+          <span>Фильтры <span class="count" id="filters-count"></span></span><span data-icon="chevronRight"></span>
+        </button>
+        <form class="filters" id="filters" autocomplete="off" onsubmit="return false">
+          <div class="filters__head">
+            <h2 class="filters__title">Фильтры</h2>
+            <button class="filters__close" type="button" id="filters-close" aria-label="Скрыть фильтры" title="Скрыть фильтры"><span data-icon="close"></span></button>
+          </div>
+
+          <div class="fsec" role="group" aria-labelledby="f-cat">
+            <p class="fsec__title" id="f-cat">Направление</p>
+            <div class="fsec__group">
+              <label class="check"><input type="checkbox" name="cat" value="eng"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Инженерные и технические</span></label>
+              <label class="check"><input type="checkbox" name="cat" value="it"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">IT и математика</span></label>
+              <label class="check"><input type="checkbox" name="cat" value="hum"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Социально-гуманитарные направления</span></label>
+              <label class="check"><input type="checkbox" name="cat" value="art"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Творческие направления<span class="check__desc">С технической составляющей</span></span></label>
+              <label class="check"><input type="checkbox" name="cat" value="sport"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Физическая культура и спорт</span></label>
+              <label class="check"><input type="checkbox" name="cat" value="econ"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Экономика, управление и право</span></label>
+            </div>
+          </div>
+
+          <div class="fsec" role="group" aria-labelledby="f-form">
+            <p class="fsec__title" id="f-form">Форма обучения</p>
+            <div class="fsec__group">
+              <label class="check"><input type="checkbox" name="form" value="och"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Очная</span></label>
+              <label class="check"><input type="checkbox" name="form" value="ochzaoch"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Очно-заочная</span></label>
+              <label class="check"><input type="checkbox" name="form" value="zaoch"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Заочная</span></label>
+            </div>
+          </div>
+
+          <div class="fsec" role="group" aria-labelledby="f-budget">
+            <p class="fsec__title" id="f-budget">Бюджетные места</p>
+            <label class="check"><input type="checkbox" name="budget" value="1"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Обязательно</span></label>
+          </div>
+
+          <div class="fsec" role="group" aria-labelledby="f-dorm">
+            <p class="fsec__title" id="f-dorm">Общежитие</p>
+            <label class="check"><input type="checkbox" name="dorm" value="1"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Обязательно</span></label>
+          </div>
+
+          <div class="fsec" role="group" aria-labelledby="f-ege" id="sec-ege">
+            <p class="fsec__title" id="f-ege">Настройка по результатам ЕГЭ</p>
+            <div class="fsec__group">
+              <label class="radio"><input type="radio" name="ege" value="score"><span class="radio__dot"></span><span class="check__text">По баллам ЕГЭ<span class="radio__desc">Покажем, куда хватает баллов</span></span></label>
+              <div class="ege-panel" id="panel-score" hidden>
+                <div class="slider-field">
+                  <div class="slider-field__label">
+                    <label for="score">Сумма баллов</label>
+                    <input class="score-input" type="number" id="score" inputmode="numeric" min="0" max="400" step="1" placeholder="0">
+                  </div>
+                  <div class="range"><span class="range__track"></span><input type="range" id="score-range" min="0" max="310" step="1" value="0" aria-label="Сумма баллов, ползунок"></div>
+                  <p class="slider-field__hint">Сравним с проходным баллом 2025 года</p>
+                </div>
+              </div>
+              <label class="radio"><input type="radio" name="ege" value="subj"><span class="radio__dot"></span><span class="check__text">По предметам ЕГЭ<span class="radio__desc">Русский и математика учтены</span></span></label>
+              <div class="ege-panel" id="panel-subj" hidden>
+                <label class="check"><input type="checkbox" name="subj" value="Информатика"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Информатика</span></label>
+                <label class="check"><input type="checkbox" name="subj" value="Физика"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Физика</span></label>
+                <label class="check"><input type="checkbox" name="subj" value="Химия"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Химия</span></label>
+                <label class="check"><input type="checkbox" name="subj" value="Биология"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Биология</span></label>
+                <label class="check"><input type="checkbox" name="subj" value="История"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">История</span></label>
+                <label class="check"><input type="checkbox" name="subj" value="Обществознание"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Обществознание</span></label>
+                <label class="check"><input type="checkbox" name="subj" value="Литература"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Литература</span></label>
+                <label class="check"><input type="checkbox" name="subj" value="География"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">География</span></label>
+                <label class="check"><input type="checkbox" name="subj" value="Иностранный язык"><span class="check__box"><span data-icon="check"></span></span><span class="check__text">Иностранные языки</span></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="fsec" role="group" aria-labelledby="f-price">
+            <p class="fsec__title" id="f-price">Стоимость обучения</p>
+            <div class="slider-field">
+              <div class="slider-field__label">
+                <span>В год</span>
+                <span class="slider-field__out"><span id="price-out">40–200</span><span>тыс.&nbsp;₽</span></span>
+              </div>
+              <div class="range">
+                <span class="range__track"></span>
+                <input type="range" id="price-min" min="40" max="200" step="5" value="40" aria-label="Стоимость от, тыс. ₽">
+                <input type="range" id="price-max" min="40" max="200" step="5" value="200" aria-label="Стоимость до, тыс. ₽">
+              </div>
+            </div>
+          </div>
+
+          <div class="filters__buttons">
+            <button class="btn btn--primary btn--md btn--block" type="button" id="apply">Применить фильтры</button>
+            <button class="btn btn--neutral btn--block" type="button" id="reset-filters"><span data-icon="xSquare"></span>Сбросить фильтры</button>
+          </div>
+        </form>
+      </aside>
+    </div>
+  </main>
+
+  <footer id="footer"></footer>
+  <script>Site.renderFooter();</script>
+  <script src="js/catalog.js"></script>
+</body>
+</html>
