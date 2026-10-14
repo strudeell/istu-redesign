@@ -634,10 +634,50 @@ a.acard:hover .acard__arrow { transform: translateX(2px); }
 .notes a:hover { color: var(--brand); }
 
 /* ==========================================================================
-   Заглушка
+   Заглушка: лист чертежа с фермой «404» (рисует js/stub.js)
    ========================================================================== */
-.stub { padding: 48px 0 230px; }
-.stub__face { margin: 48px 0 0 486px; font-size: 190px; line-height: 228px; font-weight: 700; letter-spacing: -3.8px; }
+.stub { padding: 48px 0 96px; }
+.stub__head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px 24px; min-height: 58px; }
+.stub__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* Миллиметровка: шаг и сдвиг сетки задаёт скрипт, чтобы линии проходили через узлы фермы */
+.stub__sheet {
+  --cell: 44px; --gx: 0px; --gy: 0px;
+  position: relative; margin-top: 24px; height: clamp(420px, calc(100vh - 260px), 560px); overflow: hidden;
+  border: 1px solid var(--border); border-radius: 16px;
+  background-color: var(--surface);
+  background-image:
+    linear-gradient(to right, #dcebfc 1px, transparent 1px), linear-gradient(to bottom, #dcebfc 1px, transparent 1px),
+    linear-gradient(to right, #eff6fe 1px, transparent 1px), linear-gradient(to bottom, #eff6fe 1px, transparent 1px);
+  background-size:
+    var(--cell) var(--cell), var(--cell) var(--cell),
+    calc(var(--cell) / 2) calc(var(--cell) / 2), calc(var(--cell) / 2) calc(var(--cell) / 2);
+  background-position: var(--gx) var(--gy);
+}
+.stub__canvas {
+  position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+  cursor: crosshair; touch-action: pan-y; -webkit-user-select: none; user-select: none;
+}
+
+/* Технические требования и основная надпись — в правом нижнем углу листа, как на чертеже */
+.stub__legend { position: absolute; right: 0; bottom: 0; width: 360px; max-width: 100%; }
+.stub__notes {
+  display: flex; flex-direction: column; gap: 4px; padding: 0 20px 14px 2px;
+  counter-reset: stub-note; font-size: 14px; line-height: 20px; color: var(--text-2);
+}
+.stub__notes li { display: grid; grid-template-columns: 18px minmax(0, 1fr); }
+.stub__notes li::before { counter-increment: stub-note; content: counter(stub-note) '.'; }
+.stub__stamp {
+  display: grid; grid-template-columns: 76px 100px minmax(0, 1fr); grid-auto-rows: 24px; gap: 1px;
+  padding: 1px 0 0 1px; background: var(--border); border-top-left-radius: 8px; overflow: hidden;
+  font-size: 12px; line-height: 16px; color: var(--text); font-variant-numeric: tabular-nums;
+}
+.stub__stamp > * { display: flex; align-items: center; min-width: 0; padding: 0 8px; background: var(--surface); white-space: nowrap; overflow: hidden; }
+.stub__key { color: var(--muted); }
+.stub__code { grid-row: span 2; justify-content: center; font-size: 15px; line-height: 20px; font-weight: 600; }
+.stub__name { justify-content: center; }
+.stub__mini { gap: 1px; padding: 0; background: var(--border); }
+.stub__mini span { flex: 1 1 0; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--surface); font-size: 11px; }
 
 /* ==========================================================================
    Адаптация под ширину окна 1024–1439
@@ -650,7 +690,6 @@ a.acard:hover .acard__arrow { transform: translateX(2px); }
   .cards--grid { grid-template-columns: minmax(0, 1fr); }
   .pcard--row .pcard__row { grid-template-columns: minmax(0, 1fr) minmax(0, 200px); row-gap: 20px; }
   .pcard--row .pcard__side { grid-column: 1 / -1; }
-  .stub__face { margin-left: 30%; }
   .pinfo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .news__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .programs-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -6,22 +6,49 @@
   <title>Упс, это не та страница — ИжГТУ, неофициальный концепт</title>
   <link rel="icon" href="assets/img/logo-header.png">
   <link rel="preload" href="assets/fonts/inter-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=3">
-  <link rel="stylesheet" href="css/mobile.css?v=3">
-  <script src="js/icons.js?v=3"></script>
-  <script src="js/common.js?v=3"></script>
-  <script src="js/mobile.js?v=3"></script>
+  <link rel="stylesheet" href="css/style.css?v=4">
+  <link rel="stylesheet" href="css/mobile.css?v=4">
+  <script src="js/icons.js?v=4"></script>
+  <script src="js/common.js?v=4"></script>
+  <script src="js/mobile.js?v=4"></script>
 </head>
 <body class="page-white">
   <header id="header"></header>
   <script>Site.renderHeader();</script>
 
   <main class="container stub">
-    <h1 class="t-page">Упс, это не та страница</h1>
-    <p class="stub__face" aria-hidden="true">;(</p>
+    <div class="stub__head">
+      <h1 class="t-page">Упс, это не та страница</h1>
+      <div class="stub__actions">
+        <a class="btn btn--outline" href="programs.html">Образовательные программы</a>
+        <a class="btn btn--primary btn--md" href="index.html">На&nbsp;главную</a>
+      </div>
+    </div>
+
+    <!-- Лист чертежа: ферму «404» рисует js/stub.js, узлы можно тянуть -->
+    <div class="stub__sheet" id="stub-sheet">
+      <canvas class="stub__canvas" aria-hidden="true"></canvas>
+      <div class="stub__legend">
+        <ol class="stub__notes">
+          <li>Страница не&nbsp;найдена или&nbsp;ещё в&nbsp;разработке.</li>
+          <li>Конструкцию можно испытать на&nbsp;прочность: потяните за&nbsp;любой узел.</li>
+          <li>Нажатие на&nbsp;лист&nbsp;— ударная нагрузка.</li>
+        </ol>
+        <div class="stub__stamp" aria-hidden="true">
+          <span class="stub__key">Разраб.</span><span>Абитуриент</span>
+          <b class="stub__code">ИжГТУ.404.000&nbsp;СБ</b>
+          <span class="stub__key">Пров.</span><span>Сопромат</span>
+          <span class="stub__key">Нагрузка</span><span id="stub-force">0,0&nbsp;кН</span>
+          <span class="stub__name">Страница не&nbsp;найдена</span>
+          <span class="stub__key">Балки</span><span id="stub-beams">—</span>
+          <span class="stub__mini"><span>Лист 404</span><span>Листов ∞</span><span>М&nbsp;1:1</span></span>
+        </div>
+      </div>
+    </div>
   </main>
 
   <footer id="footer"></footer>
   <script>Site.renderFooter();</script>
+  <script src="js/stub.js?v=4"></script>
 </body>
 </html>

@@ -370,7 +370,18 @@
      Заглушка
      ========================================================================== */
   body.page-white { background: var(--bg); }
-  .stub { padding: 27px 0 120px; }
+  .stub { padding: 27px 0 48px; display: flex; flex-direction: column; }
+  /* Кнопки уходят под лист: заголовок и кнопки становятся отдельными строками колонки */
+  .stub__head { display: contents; }
+  .stub__actions { order: 1; margin-top: 16px; gap: 8px; flex-wrap: wrap-reverse; }
+  .stub__actions .btn { flex: 1 1 auto; }
+  /* Высота поля под ферму — от ширины листа: 14 клеток в ширину, 7 в высоту плюс размер и опоры */
+  .stub__sheet { margin-top: 16px; height: auto; padding-top: calc(54.3% + 50px); border-radius: 8px; }
+  .stub__legend { position: static; width: auto; }
+  .stub__notes { padding: 0 12px 12px; }
+  .stub__stamp { grid-template-columns: 68px 84px minmax(0, 1fr); padding-left: 0; border-radius: 0; }
+  .stub__code { font-size: 13px; }
+  /* Прежняя заглушка (десктоп до v4) */
   .stub__face { margin: 34px 0 0; text-align: center; font-size: 48px; line-height: 57.6px; letter-spacing: -0.96px; }
 }
 
