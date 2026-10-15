@@ -3,6 +3,7 @@
   var I = window.ICONS;
   var STUB = 'stub.html';
   var CATALOG = 'programs.html';
+  var UX_CASE = 'https://strudeell.github.io/istu-ux-case/';
 
   var MENU = [
     { title: 'Открытый университет', items: [
@@ -85,8 +86,10 @@
       '<a href="' + STUB + '" aria-label="MAX">' + I.max + '</a>' +
       '</div></div>' +
       '<div class="footer__cols">' + cols + '</div>' +
+      '<div class="footer__bottom">' +
       '<p class="footer__note">Неофициальный концепт редизайна раздела «Абитуриенту» сайта ИжГТУ им. М.Т. Калашникова. Данные о программах — istu.ru, 2026.</p>' +
-      '</div>';
+      '<a class="btn btn--outline footer__case" href="' + UX_CASE + '" target="_blank" rel="noopener">UX‑кейс: как создавался сайт ' + I.arrowUpRight + '</a>' +
+      '</div></div>';
   }
 
   function initDropdowns(root) {

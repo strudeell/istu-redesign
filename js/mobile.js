@@ -19,7 +19,8 @@
     menu: svg(20, '<path d="M3 12h18M3 6h18M3 18h18"/>'),
     back: svg(20, '<path d="M15 18l-6-6 6-6"/>'),
     sliders: svg(16, '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>'),
-    sort: svg(16, '<path d="M7 20V4M3 8l4-4 4 4M17 4v16M21 16l-4 4-4-4"/>')
+    sort: svg(16, '<path d="M7 20V4M3 8l4-4 4 4M17 4v16M21 16l-4 4-4-4"/>'),
+    external: svg(20, '<path d="M7 17L17 7M7 7h10v10"/>')
   };
 
   function pageName() {
@@ -102,6 +103,7 @@
   };
 
   /* ---------- Подвал по мобильному макету ---------- */
+  var UX_CASE = 'https://strudeell.github.io/istu-ux-case/';
   var FOOTER = [
     { title: 'Открытый университет', items: [
       'Сведения об образовательной организации', 'Виртуальная приёмная', 'Материалы приёма граждан', 'Работа в ИжГТУ'] },
@@ -134,6 +136,7 @@
       '<a href="' + S.STUB + '" aria-label="MAX">' + I.max + '</a>' +
       '</div></div>' +
       '<div class="m-footer__cols">' + cols + '<a class="footer__title" href="' + S.STUB + '">Партнёрам</a></div>' +
+      '<a class="btn btn--outline m-footer__case" href="' + UX_CASE + '" target="_blank" rel="noopener">UX‑кейс: как создавался сайт ' + ICON.external + '</a>' +
       '<p class="footer__note">Неофициальный концепт редизайна раздела «Абитуриенту» сайта ИжГТУ им.&nbsp;М.Т.&nbsp;Калашникова. Данные о&nbsp;программах&nbsp;— istu.ru, 2026.</p>' +
       '</div>';
   }
